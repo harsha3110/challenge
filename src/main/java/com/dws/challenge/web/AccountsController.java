@@ -54,9 +54,13 @@ public class AccountsController {
 
 	@PostMapping(path = "/transfer", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> transferMoney(@RequestBody @Valid AccountTransfer accountTransfer) {
-		
+		Account accountFrom = this.accountsService.getAccount(accountTransfer.getAccountIdFrom());
+		Account accountTo = this.accountsService.getAccount(accountTransfer.getAccountIdTo());
+		if (null == accountFrom || null == accountTo) {
+			return new ResponseEntity<>("Invalid from/to account Id, retry!", HttpStatus.BAD_REQUEST); 
+		}
 		try {
-			this.accountsService.transferMoney(accountTransfer.getAccountFrom(), accountTransfer.getAccountTo(), accountTransfer.getAmount());
+			this.accountsService.transferMoney(accountFrom, accountTo, accountTransfer.getAmount());
 		} catch (MissingAccountException daie) {
 			return new ResponseEntity<>(daie.getMessage(), HttpStatus.BAD_REQUEST);
 		} catch (NegativeAmountException daie) {
