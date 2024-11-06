@@ -105,41 +105,38 @@ class AccountsControllerTest {
 
 	@Test
 	void transferMoney_success() throws Exception {
-		Account fromAccount = new Account("1001", new BigDecimal("100.00"));
-		Account toAccount = new Account("1002", new BigDecimal("200.00"));
-
+		Account fromAccount = new Account("101", new BigDecimal("100.00"));
+		Account toAccount = new Account("102", new BigDecimal("200.00"));
 		accountsService.createAccount(toAccount);
 		accountsService.createAccount(fromAccount);
 
 		this.mockMvc.perform(post("/v1/accounts/transfer").contentType(MediaType.APPLICATION_JSON).content(
-				"{\"accountFrom\":{\"accountId\":\"1002\",\"balance\":200},\"accountTo\":{\"accountId\":\"1001\",\"balance\":100},\"amount\":\"50\"}"))
+				"{\"accountIdFrom\":\"102\",\"accountIdTo\":\"101\",\"amount\":\"50\"}"))
 				.andExpect(status().is2xxSuccessful());
 
 	}
 
 	@Test
 	void transferMoney_failOnNegativeBalance() throws Exception {
-		Account fromAccount = new Account("1001", new BigDecimal("100.00"));
-		Account toAccount = new Account("1002", new BigDecimal("200.00"));
-
+		Account fromAccount = new Account("101", new BigDecimal("100.00"));
+		Account toAccount = new Account("102", new BigDecimal("200.00"));
 		accountsService.createAccount(toAccount);
 		accountsService.createAccount(fromAccount);
 
 		this.mockMvc.perform(post("/v1/accounts/transfer").contentType(MediaType.APPLICATION_JSON).content(
-				"{\"accountFrom\":{\"accountId\":\"1002\",\"balance\":200},\"accountTo\":{\"accountId\":\"1001\",\"balance\":100},\"amount\":\"-100\"}"))
+				"{\"accountIdFrom\":\"102\",\"accountIdTo\":\"101\",\"amount\":\"-50\"}"))
 				.andExpect(status().isBadRequest());
 	}
 
-	 @Test
+	@Test
 	void transferMoney_failOnOverdraft() throws Exception {
-		Account fromAccount = new Account("1001", new BigDecimal("100.00"));
-		Account toAccount = new Account("1002", new BigDecimal("200.00"));
-
+		Account fromAccount = new Account("101", new BigDecimal("100.00"));
+		Account toAccount = new Account("102", new BigDecimal("200.00"));
 		accountsService.createAccount(toAccount);
 		accountsService.createAccount(fromAccount);
 
 		this.mockMvc.perform(post("/v1/accounts/transfer").contentType(MediaType.APPLICATION_JSON).content(
-				"{\"accountFrom\":{\"accountId\":\"1002\",\"balance\":200},\"accountTo\":{\"accountId\":\"1001\",\"balance\":100},\"amount\":\"500\"}"))
+				"{\"accountIdFrom\":\"102\",\"accountIdTo\":\"101\",\"amount\":\"500\"}"))
 				.andExpect(status().is4xxClientError());
 	}
 }
