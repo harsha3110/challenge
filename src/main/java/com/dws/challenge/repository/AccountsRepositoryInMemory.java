@@ -10,7 +10,6 @@ import com.dws.challenge.domain.Account;
 import com.dws.challenge.exception.DuplicateAccountIdException;
 import com.dws.challenge.exception.MissingAccountException;
 import com.dws.challenge.exception.NegativeAmountException;
-import com.dws.challenge.service.EmailNotificationService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,18 +40,6 @@ public class AccountsRepositoryInMemory implements AccountsRepository {
 	@Override
 	public void transferMoney(Account accountFrom, Account accountTo, BigDecimal amount)
 			throws MissingAccountException, NegativeAmountException {
-		// check if account exists
-		Account fromAccount = getAccount(accountFrom.getAccountId());
-		Account toAccount = getAccount(accountTo.getAccountId());
-
-		// Check the previous balance
-		BigDecimal previousBalance = accountTo.getBalance();
-
-		// Check if any of from or to account exists
-		if (null == fromAccount || null == toAccount) {
-			throw new MissingAccountException("Account does not exist exception");
-		}
-
 		// check if amount is not negative or zero
 		if (!(amount.compareTo(BigDecimal.ZERO) >= 1)) {
 			throw new NegativeAmountException("Amount cannot be negative");
@@ -61,10 +48,13 @@ public class AccountsRepositoryInMemory implements AccountsRepository {
 		// check if current account in debit account is not less than amount to be
 		// transfered
 		synchronized (accountFrom) {
-    		if (!((accountFrom.getBalance().compareTo(amount) >= 1))) {
+    		if (!((accountFrom.getBalance().compareTo(amount) >= 0))) {
 	    		throw new NegativeAmountException("Overdraft not available");
 		    }
     		synchronized (accountTo) {
+    			// Check the previous balance
+    			BigDecimal previousBalance = accountTo.getBalance();
+
     		    BigDecimal newBalanceinCreditAccount = updateAccountBalance(accountFrom, accountTo, amount);
     			if (newBalanceinCreditAccount.compareTo(previousBalance) >= 1) {
 
