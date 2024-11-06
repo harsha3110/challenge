@@ -9,18 +9,18 @@ import lombok.Data;
 @Data
 public class AccountTransfer {
 	@NotNull
-	Account accountFrom;
+	String accountIdFrom;
 	@NotNull
-	Account accountTo;
+	String accountIdTo;
 	@NotNull
 	@Min(value = 0, message = "Initial balance must be positive.")
 	BigDecimal amount;
 	
 	public AccountTransfer () {}
 	
-	public AccountTransfer (Account accountFrom, Account accountTo, BigDecimal amount) {
-		this.accountFrom = accountFrom;
-		this.accountTo = accountTo;
+	public AccountTransfer (String accountIdFrom, String accountIdTo, BigDecimal amount) {
+		this.accountIdFrom = accountIdFrom;
+		this.accountIdTo = accountIdTo;
 		this.amount = amount;
 	}
 }
